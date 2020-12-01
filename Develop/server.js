@@ -1,32 +1,36 @@
 //Dependencies, add more here later
 const express = require("express");
-const fs = require("fs");
 const path = require("path");
+const fs = require("fs");
+
 
 //Express part/port
 const app = express ();
-var PORT = 3000;
+var PORT = process.env.PORT || 8080;
 
 //Express hookup with everything else 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 //using css, js, etc.
-app.use(express.static(__dirname + '/public'));
+app.use(express.static("public"));
 
 //using HTML files 
 //NON assets CORRECT
+
 app.get("/", function (req, res) {
     res.sendFile(path.join(__dirname, "public/index.html"));
 });
+
 app.get("/notes", function (req, res) {
     res.sendFile(path.join(__dirname, "public/notes.html"));
 });
 
 //Retrieve notes
-var notes = require("db/db.json")
+var myNotes = require("./db/db")
 app.get("/api/notes", function (req, res) {
-    return fs.readFile("notes");
+    return fs.readFile("db/db.json");
+    // not 'notes'
 });
 // app.get("/api/notes", function (req, res) {
 //     return fs.readFile(path.join(__dirname, "db/db.json"));
@@ -35,24 +39,27 @@ app.get("/api/notes", function (req, res) {
 //Post that new note
 app.post("/api/notes", function (req, res) {
     const mynewNote = req.body;
+
+    console.log(mynewNote);
 //save that new note
+    mynewNote.id = myNotes.length + 1;
     notes.push(mynewNote);
 //show saved notes
-    console.log('Unsaved notes: ', notes.length);
-    mynewNote.id = notes.length + 1;
-    console.log('Saved notes: ', notes.id);
+    console.log('Unsaved notes: ', myNotes.length);
+    mynewNote.id = myNotes.length + 1;
+    console.log('Saved notes: ', myNotes.id);
 
-    fs.writeFile(JSON.stringify(notes), function(err) {
+    fs.writeFile("./db/db.json", JSON.stringify(myNotes), function(err) {
         if (err) {
             throw err;
         }
-
-        res.send(notes);
+    });
+        res.send(myNotes);
     });
 
 //delete any note
 app.delete("/api/notes/:id", function (req, res) {
-    res.send("db/db.json");
+    res.send("./db/db.json");
 });
 //Delete note
 // app.delete("/db", function (req, res) {
@@ -62,5 +69,5 @@ app.delete("/api/notes/:id", function (req, res) {
 
 //Port function
 app.listen(PORT, function () {
-    console.log("App listening on PORT " + PORT);
+    console.log(`App listening on http://localhost:${PORT}`);
 });
