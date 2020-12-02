@@ -3,9 +3,10 @@ const express = require("express");
 const path = require("path");
 const fs = require("fs");
 
+
 //Express part/port
 const app = express ();
-var PORT = process.env.PORT || 8080;
+var PORT = process.env.PORT || 3000;
 
 //Express hookup with everything else 
 app.use(express.urlencoded({ extended: true }));
